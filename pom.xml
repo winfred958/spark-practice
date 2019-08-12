@@ -12,7 +12,7 @@
 
 
     <modules>
-        <module>practice-base</module>
+        <module>practice-common</module>
         <module>practice-ml</module>
         <module>practice-graphx</module>
     </modules>
