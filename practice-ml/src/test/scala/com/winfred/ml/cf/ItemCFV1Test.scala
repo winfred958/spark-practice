@@ -36,6 +36,7 @@ object ItemCFV1Test {
 
     println(s"=================== numRows: ${rows}, numCols: ${cols}")
 
+    // 计算商品相似度
     val result = ItemBaseCFV1
       .calculateSimilarities(
         sparkSession = sparkSession,
@@ -43,6 +44,12 @@ object ItemCFV1Test {
       )
 
     result.show(200)
+
+    // item mapping 还原
+
+    // sink
+
+
 
     sparkSession.close()
   }
