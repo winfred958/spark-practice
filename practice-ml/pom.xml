@@ -15,7 +15,7 @@
     <dependencies>
         <dependency>
             <groupId>con.winfred.spark.practice</groupId>
-            <artifactId>practice-base</artifactId>
+            <artifactId>practice-common</artifactId>
             <version>${project.version}</version>
         </dependency>
 
