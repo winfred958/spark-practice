@@ -1,7 +1,8 @@
 package com.winfred.ml.cf
 
 import com.winfred.datamining.utils.{ArgsHandler, CommonDateUtil, RowUtils}
-import com.winfred.ml.common.DataMappingUtils
+import com.winfred.ml.common.TestCase.OrderItem
+import com.winfred.ml.common.{DataMappingUtils, TestCase}
 import org.apache.spark.SparkConf
 import org.apache.spark.mllib.linalg.distributed.{CoordinateMatrix, MatrixEntry}
 import org.apache.spark.rdd.RDD
@@ -14,14 +15,13 @@ import scala.collection.mutable.ListBuffer
  *
  * ItemBaseCF v1
  *
- * 1. 商品组合构造 IndexedRow
- * 2. 构造商品矩阵: IndexedRow -> IndexedRowMatrix
+ * 1. 商品组合构造 MatrixEntry
+ * 2. 构造商品矩阵: MatrixEntry -> CoordinateMatrix
  * 3. 计算商品相似度
  * 4. item 权重调整, 惩罚爆款
  * 5. sink
  *
  * @author kevin
- * @since 2019年8月9日10:10:02
  */
 object ItemBaseCFV1 {
 
@@ -30,7 +30,7 @@ object ItemBaseCFV1 {
   def main(args: Array[String]): Unit = {
 
     val sparkConf = new SparkConf()
-    sparkConf.setMaster("yarn");
+    sparkConf.setMaster("local[*]");
     sparkConf.set("spark.debug.maxToStringFields", "200")
     // 防止迭代次数过多, StackOverflow
     sparkConf.set("spark.executor.extraJavaOptions", "-Xss16m")
@@ -45,42 +45,41 @@ object ItemBaseCFV1 {
       .builder()
       .appName("ItemBaseCFV1")
       .config(conf = sparkConf)
-      .enableHiveSupport()
       .getOrCreate()
 
     val baseDateEntity = ArgsHandler.getArgsDateEntity(args = args)
     val startDateStr = baseDateEntity.start_date_str
 
-//    //
-//    val orderItemDataset = getOrderItemDataset(
-//      sparkSession = sparkSession,
-//      startDateStr = startDateStr
-//    )
-//
-//    //item mapping
-//    val itemMapping: Dataset[ItemMapping] = getItemMappingDataset(
-//      orderItemDataset.toDF()
-//    )
-//
-//    // 构造 item 矩阵
-//    val coordinateMatrix: CoordinateMatrix = createItemCoordinateMatrix(orderItemDataset, itemMapping)
-//
-//    // 计算相似度, 转换 dataset
-//    val similarities: Dataset[TmpEntity] = calculateSimilarities(
-//      sparkSession = sparkSession,
-//      coordinateMatrix = coordinateMatrix
-//    )
-//
-//    // 每个商品取top30
-//    val needMappingResult: Dataset[TmpEntity] = getSimilaritiesTop30(similarities, max_per_item)
-//
-//    // item recovery
-//    val resultDS = itemRecovery(needMappingResult, itemMapping)
-//
-//    // sink
-//    //    sinkToMysql(resultDS = resultDS)
-//
-//    sparkSession.close()
+
+    val orderItemDataset = getOrderItemDataset(sparkSession = sparkSession, startDateStr = startDateStr)
+    orderItemDataset.show(20)
+
+    //item mapping
+    val itemMapping: Dataset[ItemMapping] = getItemMappingDataset(
+      orderItemDataset.toDF()
+    )
+
+    // 构造 item 矩阵
+    val coordinateMatrix: CoordinateMatrix = createItemCoordinateMatrix(orderItemDataset, itemMapping)
+
+    // 计算相似度, 转换 dataset
+    val similarities: Dataset[TmpEntity] = calculateSimilarities(
+      sparkSession = sparkSession,
+      coordinateMatrix = coordinateMatrix
+    )
+
+    // 每个商品取top30
+    val needMappingResult: Dataset[TmpEntity] = getSimilaritiesTop30(similarities, max_per_item)
+
+    // item recovery
+    val resultDS = itemRecovery(needMappingResult, itemMapping)
+
+    resultDS.show(20)
+
+    // sink
+    //    sinkToMysql(resultDS = resultDS)
+
+    sparkSession.close()
   }
 
 
@@ -156,31 +155,21 @@ object ItemBaseCFV1 {
   //      })
   //
   //  }
-  //
-  //  /**
-  //    * 获取订单数据集
-  //    *
-  //    * @param sparkSession
-  //    * @param startDateStr
-  //    * @return
-  //    */
-  //  def getOrderItemDataset(
-  //                           sparkSession: SparkSession,
-  //                           startDateStr: String
-  //                         ): Dataset[OrderItem] = {
-  //
-  //    val orderItemBaseDS = OrderInfoCore.getOrderItemDatasetWithSeller(sparkSession = sparkSession, startDateStr = startDateStr)
-  //
-  //    orderItemBaseDS
-  //      .map(entity => {
-  //        OrderItem(
-  //          order_id = entity.order_id,
-  //          user_id = String.valueOf(entity.user_id),
-  //          item_number = entity.item_number
-  //
-  //        )
-  //      })
-  //  }
+
+  /**
+   * 获取订单数据集
+   *
+   * @param sparkSession
+   * @param startDateStr
+   * @return
+   */
+  def getOrderItemDataset(
+                           sparkSession: SparkSession,
+                           startDateStr: String
+                         ): Dataset[OrderItem] = {
+
+    TestCase.getOrderItem(sparkSession = sparkSession)
+  }
 
   /**
    * item number mapping,
@@ -280,103 +269,6 @@ object ItemBaseCFV1 {
     new CoordinateMatrix(entries = entries)
   }
 
-  //  /**
-  //    * 构造商品矩阵
-  //    *
-  //    * @param orderItemDataset
-  //    * @return
-  //    */
-  //  def createItemIndexedRowMatrix(
-  //                                  orderItemDataset: Dataset[OrderItem],
-  //                                  itemMapping: Dataset[ItemMapping]
-  //                                ): IndexedRowMatrix = {
-  //
-  //    val sparkSession = orderItemDataset.sparkSession
-  //
-  //    import sparkSession.implicits._
-  //
-  //
-  //    val itemSize: Int = itemMapping
-  //      .groupBy()
-  //      .count()
-  //      .collectAsList()
-  //      .get(0)
-  //      .getAs[Long]("count")
-  //      .toInt
-  //
-  //    print(s"============== item size : ${itemSize}")
-  //
-  //
-  //    val orderItemMappingDataset: Dataset[OrderItemMapping] = orderItemDataset
-  //      .join(itemMapping, Seq("item_number"), "inner")
-  //      .map(row => {
-  //        val orderItemMapping = OrderItemMapping()
-  //        RowUtils.copyParameters(row, orderItemMapping)
-  //        orderItemMapping
-  //      })
-  //
-  //    val indexedRowRDD = orderItemMappingDataset
-  //      .rdd
-  //      .map(entity => {
-  //        (entity.user_id, entity)
-  //      })
-  //      .groupByKey()
-  //      .map(x => {
-  //        val userId = x._1
-  //
-  //        val list = new ListBuffer[(Long, Long)]
-  //
-  //        val itemArray = x._2.toArray
-  //
-  //        val size = itemArray.size
-  //        if (size < 2) {
-  //          list.+=((-1, -1))
-  //        } else {
-  //          for (i <- 0.until(size - 1)) {
-  //            val itemA = itemArray.apply(i).item_mapping_id
-  //            val itemB = itemArray.apply(i + 1).item_mapping_id
-  //            // FIXME: itemA, itemB 顺序
-  //            list.+=((itemA, itemB))
-  //          }
-  //        }
-  //        for (e <- list) yield e
-  //      })
-  //      .flatMap(x => x)
-  //      .filter(x => {
-  //        x._1 >= 0 && x._2 >= 0
-  //      })
-  //      .map(x => {
-  //        ((x._1, x._2), 1L)
-  //      })
-  //      .reduceByKey((a, b) => {
-  //        a + b
-  //      })
-  //      .map(x => {
-  //        val itemCombination = x._1
-  //        (itemCombination._1, (x))
-  //      })
-  //      .groupByKey()
-  //      .map(x => {
-  //        val indexList = new ListBuffer[Long]
-  //        val valueList = new ListBuffer[Double]
-  //
-  //        val itemA = x._1
-  //        x._2.foreach(t => {
-  //          val itemB = t._1._2
-  //          val count = t._2
-  //
-  //          indexList.+=(itemB)
-  //          valueList.+=(count)
-  //        })
-  //
-  //        IndexedRow(itemA, Vectors.sparse(itemSize, indexList.toArray, valueList.toArray))
-  //      })
-  //
-  //
-  //    val indexedRowMatrix: IndexedRowMatrix = new IndexedRowMatrix(indexedRowRDD)
-  //    indexedRowMatrix
-  //  }
-
 
   /**
    * 计算相似度
@@ -464,11 +356,6 @@ object ItemBaseCFV1 {
                                item_mapping_id: Long = 0L
                              )
 
-  case class OrderItem(
-                        order_id: Long,
-                        user_id: String,
-                        item_number: String
-                      )
 
   case class ItemMapping(
                           item_number: String = "",
