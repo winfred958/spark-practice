@@ -15,6 +15,7 @@
         <module>practice-common</module>
         <module>practice-ml</module>
         <module>practice-graphx</module>
+        <module>practice-core</module>
     </modules>
 
     <properties>
@@ -26,7 +27,9 @@
 
         <!-- other -->
         <snakeyaml.version>1.24</snakeyaml.version>
-        <junit.version>5.5.1</junit.version>
+        <junit-jupiter.version>5.5.2</junit-jupiter.version>
+        <junit.version>4.12</junit.version>
+        <lombok.version>1.18.4</lombok.version>
 
         <!--plugin-->
         <maven-compiler-plugin.vesrion>3.6.2</maven-compiler-plugin.vesrion>
@@ -38,17 +41,32 @@
     </properties>
 
 
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit-jupiter.version}</version>
+            <scope>test</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+    </dependencies>
+
     <dependencyManagement>
 
-
         <dependencies>
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-api</artifactId>
-                <version>${junit.version}</version>
-                <scope>test</scope>
-            </dependency>
-
             <!--scala-->
             <dependency>
                 <groupId>org.scala-lang</groupId>
@@ -78,7 +96,6 @@
                 <artifactId>spark-core_2.12</artifactId>
                 <version>${spark.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.spark</groupId>
                 <artifactId>spark-sql_2.12</artifactId>
