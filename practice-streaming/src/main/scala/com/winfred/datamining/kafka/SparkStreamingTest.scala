@@ -62,6 +62,7 @@ object SparkStreamingTest {
     result.print()
 
     streamingContext.start()
+    streamingContext.awaitTermination()
   }
 
   case class LogEntity(

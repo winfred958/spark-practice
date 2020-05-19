@@ -32,7 +32,7 @@ SPARK_CMD=$(cat <<!EOF
     --jars ${SPARK_DEPENDENCY_JARS} \
     --verbose \
   ${PATH_STREAMING_JAR} \
-  --bootstrap-servers 172.27.0.39:9092
+  --bootstrap-servers 172.27.0.39:9092 --topic-name kevinnhu-test-v1
 !EOF
 )
 echo -e "==============================================================\n ${SPARK_CMD} \n=============================================================="
