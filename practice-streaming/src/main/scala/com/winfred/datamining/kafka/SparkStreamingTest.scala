@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON
 import com.winfred.datamining.utils.ArgsHandler
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.spark.SparkConf
-import org.apache.spark.sql.SparkSession
 import org.apache.spark.streaming.kafka010.ConsumerStrategies.Subscribe
 import org.apache.spark.streaming.kafka010.KafkaUtils
 import org.apache.spark.streaming.kafka010.LocationStrategies.PreferConsistent
@@ -21,15 +20,17 @@ object SparkStreamingTest {
     val sparkConf = new SparkConf()
     sparkConf.set("spark.debug.maxToStringFields", "200")
 
-//    val sparkSession = SparkSession
-//      .builder()
-//      .appName("KafkaVersionTest")
-//      .config(conf = sparkConf)
-//      .getOrCreate()
+    //    val sparkSession = SparkSession
+    //      .builder()
+    //      .appName("KafkaVersionTest")
+    //      .config(conf = sparkConf)
+    //      .getOrCreate()
 
     val bootstrapServers = ArgsHandler.getArgsParam(args, "bootstrap-servers")
+    val topicName = ArgsHandler.getArgsParam(args, "topic-name")
 
-    log.info("[kafka] servers: {}", bootstrapServers)
+    log.warn("[kafka] servers: {}", bootstrapServers)
+    log.warn("[kafka] servers: {}", topicName)
 
     val streamingContext = new StreamingContext(sparkConf, Seconds(10))
 
@@ -42,8 +43,7 @@ object SparkStreamingTest {
       "enable.auto.commit" -> (true: java.lang.Boolean)
     )
 
-    val topics = Array("kevinnhu-test")
-
+    val topics = Array(topicName)
 
     val result = KafkaUtils
       .createDirectStream(streamingContext, PreferConsistent, Subscribe[String, String](topics, kafkaParams))
