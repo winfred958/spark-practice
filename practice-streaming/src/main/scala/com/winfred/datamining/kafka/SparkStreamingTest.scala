@@ -66,8 +66,8 @@ object SparkStreamingTest {
   }
 
   case class LogEntity(
-                        @BeanProperty server_time: Long,
-                        @BeanProperty event_name: String
+                        @BeanProperty server_time: Long = System.currentTimeMillis(),
+                        @BeanProperty event_name: String = "test"
                       )
 
 }
