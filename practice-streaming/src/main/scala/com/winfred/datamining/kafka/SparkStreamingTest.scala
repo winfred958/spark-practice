@@ -15,7 +15,6 @@ object SparkStreamingTest {
 
   def main(args: Array[String]): Unit = {
     val sparkConf = new SparkConf()
-    sparkConf.setMaster("local[*]");
     sparkConf.set("spark.debug.maxToStringFields", "200")
 
     val sparkSession = SparkSession

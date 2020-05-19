@@ -9,7 +9,6 @@ object StructStreamingTest {
 
   def main(args: Array[String]): Unit = {
     val sparkConf = new SparkConf()
-    sparkConf.setMaster("local[*]");
     sparkConf.set("spark.debug.maxToStringFields", "200")
     // 防止迭代次数过多, StackOverflow
     sparkConf.set("spark.executor.extraJavaOptions", "-Xss16m")
