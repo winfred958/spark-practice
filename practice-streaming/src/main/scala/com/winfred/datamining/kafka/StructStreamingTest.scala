@@ -1,5 +1,6 @@
 package com.winfred.datamining.kafka
 
+import com.winfred.datamining.utils.ArgsHandler
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
 
@@ -13,6 +14,8 @@ object StructStreamingTest {
     // 防止迭代次数过多, StackOverflow
     sparkConf.set("spark.executor.extraJavaOptions", "-Xss16m")
 
+    val bootstrapServers = ArgsHandler.getArgsParam(args, "bootstrap-servers")
+
     /**
      * kyro 序列化优化
      */
@@ -25,7 +28,7 @@ object StructStreamingTest {
       .config(conf = sparkConf)
       .getOrCreate()
     val kafkaParams = Map[String, String](
-      "bootstrap.servers" -> "172.27.16.100:9092",
+      "bootstrap.servers" -> bootstrapServers,
       "group.id" -> s"test-${this.getClass.getName}",
       "auto.offset.reset" -> "latest",
       "enable.auto.commit" -> (true: java.lang.Boolean).toString

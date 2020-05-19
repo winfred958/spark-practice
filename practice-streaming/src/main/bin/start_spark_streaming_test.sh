@@ -31,7 +31,8 @@ SPARK_CMD=$(cat <<!EOF
     --conf spark.executor.extraJavaOptions=-Xss8m \
     --jars ${SPARK_DEPENDENCY_JARS} \
     --verbose \
-  ${PATH_STREAMING_JAR}
+  ${PATH_STREAMING_JAR} \
+  --bootstrap-servers 172.27.0.39:9092
 !EOF
 )
 echo -e "==============================================================\n ${SPARK_CMD} \n=============================================================="

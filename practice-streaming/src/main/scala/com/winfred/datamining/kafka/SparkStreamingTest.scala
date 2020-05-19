@@ -1,6 +1,7 @@
 package com.winfred.datamining.kafka
 
 import com.alibaba.fastjson.JSON
+import com.winfred.datamining.utils.ArgsHandler
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
@@ -8,28 +9,32 @@ import org.apache.spark.streaming.kafka010.ConsumerStrategies.Subscribe
 import org.apache.spark.streaming.kafka010.KafkaUtils
 import org.apache.spark.streaming.kafka010.LocationStrategies.PreferConsistent
 import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.slf4j.{Logger, LoggerFactory}
 
 import scala.beans.BeanProperty
 
 object SparkStreamingTest {
 
+  val log: Logger = LoggerFactory.getLogger("SparkStreamingTest")
+
   def main(args: Array[String]): Unit = {
     val sparkConf = new SparkConf()
     sparkConf.set("spark.debug.maxToStringFields", "200")
 
-    val sparkSession = SparkSession
-      .builder()
-      .appName("KafkaVersionTest")
-      .config(conf = sparkConf)
-      .getOrCreate()
+//    val sparkSession = SparkSession
+//      .builder()
+//      .appName("KafkaVersionTest")
+//      .config(conf = sparkConf)
+//      .getOrCreate()
 
-    sparkSession
-      .readStream
+    val bootstrapServers = ArgsHandler.getArgsParam(args, "bootstrap-servers")
+
+    log.info("[kafka] servers: {}", bootstrapServers)
 
     val streamingContext = new StreamingContext(sparkConf, Seconds(10))
 
     val kafkaParams = Map[String, Object](
-      "bootstrap.servers" -> "172.27.16.100:9092",
+      "bootstrap.servers" -> bootstrapServers,
       "key.deserializer" -> classOf[StringDeserializer],
       "value.deserializer" -> classOf[StringDeserializer],
       "group.id" -> s"test-${this.getClass.getName}",
@@ -56,7 +61,7 @@ object SparkStreamingTest {
 
     result.print()
 
-    sparkSession.close()
+    streamingContext.start()
   }
 
   case class LogEntity(
