@@ -2,6 +2,7 @@ package com.winfred.datamining.kafka
 
 import com.alibaba.fastjson.JSON
 import com.winfred.datamining.utils.ArgsHandler
+import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.spark.SparkConf
 import org.apache.spark.streaming.kafka010.ConsumerStrategies.Subscribe
@@ -20,12 +21,6 @@ object SparkStreamingTest {
     val sparkConf = new SparkConf()
     sparkConf.set("spark.debug.maxToStringFields", "200")
 
-    //    val sparkSession = SparkSession
-    //      .builder()
-    //      .appName("KafkaVersionTest")
-    //      .config(conf = sparkConf)
-    //      .getOrCreate()
-
     val bootstrapServers = ArgsHandler.getArgsParam(args, "bootstrap-servers")
     val topicName = ArgsHandler.getArgsParam(args, "topic-name")
 
@@ -35,12 +30,12 @@ object SparkStreamingTest {
     val streamingContext = new StreamingContext(sparkConf, Seconds(10))
 
     val kafkaParams = Map[String, Object](
-      "bootstrap.servers" -> bootstrapServers,
-      "key.deserializer" -> classOf[StringDeserializer],
-      "value.deserializer" -> classOf[StringDeserializer],
-      "group.id" -> s"test-${this.getClass.getName}",
-      "auto.offset.reset" -> "latest",
-      "enable.auto.commit" -> (true: java.lang.Boolean)
+      ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG -> bootstrapServers,
+      ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG -> classOf[StringDeserializer],
+      ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG -> classOf[StringDeserializer],
+      ConsumerConfig.GROUP_ID_CONFIG -> s"test-${this.getClass.getName}",
+      ConsumerConfig.AUTO_OFFSET_RESET_CONFIG -> "latest",
+      ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG -> (true: java.lang.Boolean)
     )
 
     val topics = Array(topicName)
