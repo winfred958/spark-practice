@@ -28,8 +28,6 @@ SPARK_CMD=$(cat <<!EOF
     --num-executors 4 \
     --executor-memory 4g \
     --executor-cores 4 \
-    --conf spark.executor.extraJavaOptions=-Xss8m \
-    --conf spark.executor.userClassPathFirst=true \
     --jars ${SPARK_DEPENDENCY_JARS} \
     --verbose \
   ${PATH_STREAMING_JAR} \
