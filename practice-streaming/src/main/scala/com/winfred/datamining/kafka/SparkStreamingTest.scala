@@ -21,6 +21,8 @@ object SparkStreamingTest {
   def main(args: Array[String]): Unit = {
     val sparkConf = new SparkConf()
     sparkConf.set("spark.debug.maxToStringFields", "200")
+    sparkConf.setMaster("yarn")
+    sparkConf.setAppName("SparkStreamingTest")
 
     val bootstrapServers = ArgsHandler.getArgsParam(args, "bootstrap-servers")
     val topicName = ArgsHandler.getArgsParam(args, "topic-name")
