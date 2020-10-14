@@ -22,10 +22,13 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
-        <scala.version>2.11.10</scala.version>
-        <scala.binary.version>2.11</scala.binary.version>
+        <scala.version>2.12.10</scala.version>
+        <scala.binary.version>2.12</scala.binary.version>
 
-        <spark.version>2.4.3</spark.version>
+        <spark.version>3.0.0</spark.version>
+
+        <!-- kafka version-->
+        <kafka.client.version>0.11.0.3</kafka.client.version>
 
         <!-- other -->
         <snakeyaml.version>1.24</snakeyaml.version>
@@ -34,27 +37,13 @@
         <lombok.version>1.18.4</lombok.version>
 
         <!--plugin-->
-        <maven-compiler-plugin.vesrion>3.6.2</maven-compiler-plugin.vesrion>
-        <maven-resources-plugin.version>2.7</maven-resources-plugin.version>
-        <maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>
-        <scala-maven-plugin.version>3.3.2</scala-maven-plugin.version>
-        <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
+        <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+        <scala-maven-plugin.version>3.4.6</scala-maven-plugin.version>
+        <maven-compiler-plugin.version>3.6.2</maven-compiler-plugin.version>
+        <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
+        <maven-shade-plugin.version>3.2.1</maven-shade-plugin.version>
         <maven-assembly-plugin.version>3.1.1</maven-assembly-plugin.version>
     </properties>
-
-<!--    <repositories>-->
-<!--        <repository>-->
-<!--            <id>alimaven</id>-->
-<!--            <name>aliyun maven</name>-->
-<!--            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>-->
-<!--            <releases>-->
-<!--                <enabled>true</enabled>-->
-<!--            </releases>-->
-<!--            <snapshots>-->
-<!--                <enabled>false</enabled>-->
-<!--            </snapshots>-->
-<!--        </repository>-->
-<!--    </repositories>-->
 
     <dependencies>
         <dependency>
@@ -121,7 +110,7 @@
                 <artifactId>spark-streaming_${scala.binary.version}</artifactId>
                 <version>${spark.version}</version>
             </dependency>
-            <!-- Spark Streaming -->
+            <!-- kafka -->
             <dependency>
                 <groupId>org.apache.spark</groupId>
                 <artifactId>spark-streaming-kafka-0-10_${scala.binary.version}</artifactId>
@@ -133,6 +122,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+
             <!-- Structured Streaming -->
             <dependency>
                 <groupId>org.apache.spark</groupId>
@@ -148,7 +138,7 @@
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-clients</artifactId>
-                <version>0.11.0.3</version>
+                <version>${kafka.client.version}</version>
             </dependency>
 
             <dependency>
@@ -196,7 +186,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin.vesrion}</version>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>

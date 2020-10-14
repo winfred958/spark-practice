@@ -2,6 +2,7 @@ package com.winfred.datamining.kafka
 
 import com.alibaba.fastjson.JSON
 import com.winfred.datamining.utils.ArgsHandler
+import com.winfred.entity.EventEntity
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.spark.SparkConf
@@ -44,10 +45,10 @@ object SparkStreamingTest {
       .createDirectStream(streamingContext, PreferConsistent, Subscribe[String, String](topics, kafkaParams))
       .map(record => {
         val str = record.value()
-        JSON.parseObject(str, classOf[LogEntity])
+        JSON.parseObject(str, classOf[EventEntity])
       })
       .map(entity => {
-        (entity.event_name, 1)
+        ("count", 1)
       })
       .reduceByKeyAndWindow((a: Int, b: Int) => {
         a + b
