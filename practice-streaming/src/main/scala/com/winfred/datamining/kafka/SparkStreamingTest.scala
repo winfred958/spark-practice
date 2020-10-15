@@ -54,7 +54,7 @@ object SparkStreamingTest {
       })
       .reduceByKeyAndWindow((a: Int, b: Int) => {
         a + b
-      }, Seconds(30), Seconds(10))
+      }, Seconds(300), Seconds(60))
 
 
     result.print()
