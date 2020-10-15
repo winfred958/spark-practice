@@ -6,7 +6,6 @@
   ```
 ### 2. 下载官方3.x 安装包, 解压到 /usr/local/service/ 目录下, 然后建立软链接
 - ```shell script
-  wget 
   tar -zxvf spark-3.0.0-bin-without-hadoop.tgz -C /usr/local/service/
   chown hadoop:hadoop -R /usr/local/service/spark-3.0.0-bin-without-hadoop
   cd /usr/local/service/
