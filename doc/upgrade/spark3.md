@@ -26,7 +26,7 @@
     export HADOOP_CONF_DIR=/usr/local/service/hadoop/etc/hadoop
     export SPARK_DAEMON_MEMORY=1g
     
-    export SPARK_HISTORY_OPTS="-Dspark.history.ui.port=10000 -Dspark.history.retainedApplications=10 -Dspark.history.fs.logDirectory=hdfs://HDFS43373/spark-history -Dfile.encoding=UT
+    export SPARK_HISTORY_OPTS="-Dspark.history.ui.port=10000 -Dspark.history.retainedApplications=10 -Dspark.history.fs.logDirectory=hdfs:///spark-history -Dfile.encoding=UT
     F-8"
     export SPARK_LOG_DIR=/data/emr/spark/logs
     export SPARK_PID_DIR=/data/emr/spark/logs
